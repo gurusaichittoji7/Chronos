@@ -1,8 +1,8 @@
 # Chronos 🕰️
 
-> Agent Flight Recorder & Time-Travel Debugger for LLM workflows.
+> Agent Flight Recorder & Time Travel Debugger for LLM workflows.
 
-Chronos intercepts every step of your LangChain or LangGraph agent run — capturing prompts, tool calls, outputs, token usage, and latency — and visualizes it as an interactive graph. Click any past step, edit the output, and resume execution from that exact point.
+Chronos intercepts every step of your LangChain or LangGraph agent run, capturing prompts, tool calls, outputs, token usage, and latency and visualizes it as an interactive graph. Click any past step, edit the output, and resume execution from that exact point.
 
 ### Features
 
