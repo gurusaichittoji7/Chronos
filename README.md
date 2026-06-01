@@ -1,4 +1,4 @@
-# Chronos 🕰️
+# Chronos 
 
 > Agent Flight Recorder & Time Travel Debugger for LLM workflows.
 
