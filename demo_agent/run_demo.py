@@ -5,6 +5,11 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'backend'))
 from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', 'backend', '.env'))
 
+# Always point to backend DB
+os.environ["DATABASE_URL"] = os.path.join(
+    os.path.dirname(__file__), '..', 'backend', 'chronos.db'
+)
+
 from sqlmodel import Session
 from database import engine, create_db_and_tables
 from models import Run
