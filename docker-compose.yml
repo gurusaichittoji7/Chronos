@@ -25,4 +25,6 @@ services:
     restart: unless-stopped
 
 volumes:
-  chronos_db:
+  - ./backend:/app
+  - ./demo_agent:/app/demo_agent
+  - chronos_db:/app/data
