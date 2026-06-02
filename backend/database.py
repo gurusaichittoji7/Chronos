@@ -2,9 +2,10 @@ from sqlmodel import SQLModel, create_engine, Session
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+# load_dotenv won't override existing env vars
+load_dotenv(override=False)
 
-DATABASE_URL = os.getenv("DATABASE_URL", "chronos.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "/app/chronos.db")
 
 engine = create_engine(f"sqlite:///{DATABASE_URL}", echo=False)
 
