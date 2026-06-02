@@ -18,9 +18,12 @@ export default function App() {
 
   const handleReplaySuccess = () => {
   const current = selectedRunId
+  const currentStep = selectedStep
   setSelectedRunId(null)
-  setTimeout(() => setSelectedRunId(current), 100)
-  setSelectedStep(null)
+  setTimeout(() => {
+    setSelectedRunId(current)
+    setSelectedStep(currentStep)
+  }, 100)
 }
 
   return (
