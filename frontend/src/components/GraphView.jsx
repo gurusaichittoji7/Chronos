@@ -104,7 +104,7 @@ export default function GraphView({ runId, onSelectStep }) {
     }
 
     fetchSteps()
-    const interval = setInterval(fetchSteps, 4000)
+    const interval = setInterval(fetchSteps, 2000)
     return () => clearInterval(interval)
   }, [runId])
 
@@ -154,15 +154,17 @@ export default function GraphView({ runId, onSelectStep }) {
           }}
         />
         <MiniMap
-          style={{
-            background: '#13151f',
-            border: '1px solid #2a2d3e',
-          }}
-          nodeColor={(node) => {
-            const type = node.data?.step?.step_type
-            return stepTypeColors[type]?.border || '#3b4058'
-          }}
-        />
+  style={{
+    background: '#13151f',
+    border: '1px solid #2a2d3e',
+    bottom: 60,
+    right: 10,
+  }}
+  nodeColor={(node) => {
+    const type = node.data?.step?.step_type
+    return stepTypeColors[type]?.border || '#3b4058'
+  }}
+/>
       </ReactFlow>
     </div>
   )
