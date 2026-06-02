@@ -57,23 +57,50 @@ def summarize_text(text: str) -> str:
     return f"Summary: This text contains {len(words)} words and discusses: {' '.join(words[:5])}..."
 
 
-# --- LangChain Agent Demo ---
 def run_langchain_demo(run_id: int):
-    from langchain.agents import initialize_agent, AgentType
+    from langchain.agents import create_react_agent, AgentExecutor
+    from langchain import hub
+    from langchain_core.prompts import PromptTemplate
 
     tracer = ChronosTracer(run_id=run_id)
     tools = [search_web, calculate, summarize_text]
 
-    agent = initialize_agent(
-        tools=tools,
-        llm=llm,
-        agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-        verbose=True,
-        callbacks=[tracer],
+    prompt = PromptTemplate.from_template(
+        """Answer the following questions as best you can. You have access to the following tools:
+
+{tools}
+
+Use the following format:
+
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
+
+Begin!
+
+Question: {input}
+Thought:{agent_scratchpad}"""
     )
 
-    result = agent.run(
-        "Search for information about LangGraph, then calculate 42 * 7, then summarize what you found."
+    agent = create_react_agent(llm=llm, tools=tools, prompt=prompt)
+
+    executor = AgentExecutor(
+        agent=agent,
+        tools=tools,
+        verbose=True,
+        callbacks=[tracer],
+        max_iterations=5,
+        handle_parsing_errors=True,
+    )
+
+    result = executor.invoke(
+        {"input": "Search for LangGraph, then calculate 42 * 7, then summarize what you found."},
+        config={"callbacks": [tracer]}
     )
     return result
 
