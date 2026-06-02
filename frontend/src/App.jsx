@@ -17,10 +17,11 @@ export default function App() {
   }
 
   const handleReplaySuccess = () => {
-    // re-selecting the run triggers a graph refresh
-    setSelectedRunId((prev) => prev)
-    setSelectedStep(null)
-  }
+  const current = selectedRunId
+  setSelectedRunId(null)
+  setTimeout(() => setSelectedRunId(current), 100)
+  setSelectedStep(null)
+}
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0f1117]">
