@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from database import create_db_and_tables
 from routes.runs import router as runs_router
 from routes.replay import router as replay_router
+from routes.demo import router as demo_router
 from contextlib import asynccontextmanager
 
 
@@ -29,6 +30,7 @@ app.add_middleware(
 
 app.include_router(runs_router)
 app.include_router(replay_router)
+app.include_router(demo_router)
 
 
 @app.get("/")
