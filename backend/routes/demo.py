@@ -11,7 +11,7 @@ router = APIRouter(prefix="/demo", tags=["demo"])
 
 
 def run_demo_agent(run_type: str):
-    demo_script = os.path.join(os.path.dirname(__file__), '..', 'demo_agent', 'run_demo.py')
+    demo_script = os.path.join(os.path.dirname(__file__), '..', '..', 'demo_agent', 'run_demo.py')
     subprocess.Popen(
         [sys.executable, demo_script, run_type],
         cwd=os.path.join(os.path.dirname(__file__), '..'),
