@@ -71,9 +71,6 @@ function buildNodes(steps, darkMode) {
       <div style={{ fontSize: '26px' }}>{icon}</div>
     </div>
     <div style={{ marginTop: '8px' }}>
-      <div style={{ fontSize: '11px', fontWeight: '600', color: colors.border, letterSpacing: '0.05em' }}>
-        {typeLine}
-      </div>
       <div style={{ fontSize: '11px', color: darkMode ? '#94a3b8' : '#475569' }}>
         ({nameLine})
       </div>
