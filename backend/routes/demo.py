@@ -13,7 +13,7 @@ def run_demo_agent(run_type: str):
     env = {
         **os.environ,
         'PYTHONPATH': BACKEND_DIR,
-        'DATABASE_URL': '/app/chronos.db',
+        'DATABASE_URL': os.path.join(BACKEND_DIR, 'chronos.db'),
     }
     subprocess.Popen(
         [sys.executable, DEMO_SCRIPT, run_type],
