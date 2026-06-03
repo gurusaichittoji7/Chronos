@@ -46,53 +46,55 @@ function buildNodes(steps, darkMode) {
     const colorKey = isError ? 'error' : step.step_type
     const colors = (nodeColors[colorKey] || nodeColors.node)[darkMode ? 'dark' : 'light']
     const icon = isError ? '⚠️' : (step.step_type === 'llm' ? '🧠' : getToolIcon(step.name))
-    const label = isError ? 'Exception' : step.name
+    const typeLine = isError ? 'ERROR' : step.step_type.toUpperCase()
+    const nameLine = isError ? 'Exception' : step.name
 
     return {
       id: String(step.id),
       type: 'default',
-      position: { x: 250, y: i * 180 },
+      position: { x: 250, y: i * 160 },
       data: {
-  label: (
-    <div style={{ textAlign: 'center', width: '100%', overflow: 'visible', position: 'relative' }}>
-      <div style={{ fontSize: '22px', lineHeight: 1 }}>{icon}</div>
-      {step.status === 'success' && (
-        <div style={{ fontSize: '10px', color: '#22c55e', marginTop: '1px' }}>✓</div>
-      )}
-      <div style={{
-        position: 'absolute',
-        top: '100%',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        marginTop: '52px',
-        whiteSpace: 'nowrap',
-        fontSize: '12px',
-        fontWeight: '500',
-        color: darkMode ? '#94a3b8' : '#475569',
-        pointerEvents: 'none',
-      }}>
-        {label}
-      </div>
-    </div>
-  ),
-  step,
-},
+        label: (
+          <div style={{ textAlign: 'center', width: '100%', overflow: 'visible', position: 'relative' }}>
+            <div style={{ fontSize: '26px', lineHeight: 1 }}>{icon}</div>
+            <div style={{
+              position: 'absolute',
+              top: '100%',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              marginTop: '48px',
+              whiteSpace: 'nowrap',
+              textAlign: 'center',
+              pointerEvents: 'none',
+            }}>
+              <div style={{
+                fontSize: '11px',
+                fontWeight: '600',
+                color: colors.border,
+                letterSpacing: '0.05em',
+              }}>{typeLine}</div>
+              <div style={{
+                fontSize: '11px',
+                fontWeight: '400',
+                color: darkMode ? '#94a3b8' : '#475569',
+              }}>({nameLine})</div>
+            </div>
+          </div>
+        ),
+        step,
+      },
       style: {
         background: colors.bg,
         border: `2px solid ${colors.border}`,
         borderRadius: '50%',
-        width: 90,
-        height: 90,
+        width: 80,
+        height: 80,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         cursor: 'pointer',
         boxShadow: darkMode ? `0 0 16px ${colors.border}44` : `0 2px 12px ${colors.border}33`,
       },
-      // Label below the node
-      labelStyle: { display: 'none' },
-      // Store label text for overlay
-      data_label: label,
     }
   })
 }
@@ -202,46 +204,17 @@ export default function GraphView({ runId, onSelectStep, darkMode }) {
         size={1}
       />
       <Controls />
-      <MiniMap
-        style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border)',
-          bottom: 60,
-          right: 10,
-        }}
-        nodeColor={(node) => {
-          const type = node.data?.step?.step_type
-          const isError = node.data?.step?.status === 'failed'
-          if (isError) return '#f43f5e'
-          return nodeColors[type]?.[darkMode ? 'dark' : 'light']?.border || '#94a3b8'
-        }}
-      />
     </ReactFlow>
 
-    {/* Node name labels rendered below each circle */}
     <style>{`
       .react-flow__node-default {
         overflow: visible !important;
-      }
-      .react-flow__node-default::after {
-        display: none;
       }
       .react-flow__node .react-flow__handle {
         background: transparent !important;
         border: none !important;
         width: 8px !important;
         height: 8px !important;
-      }
-      .node-label-below {
-        position: absolute;
-        bottom: -24px;
-        left: 50%;
-        transform: translateX(-50%);
-        white-space: nowrap;
-        font-size: 12px;
-        font-weight: 500;
-        color: var(--text-secondary);
-        pointer-events: none;
       }
     `}</style>
   </div>
