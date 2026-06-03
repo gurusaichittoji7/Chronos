@@ -2,7 +2,7 @@
 
 > Agent Flight Recorder & Time-Travel Debugger for LLM workflows.
 
-**Live Demo**: http://3.145.47.206:5173
+**Live Demo**: http://3.145.47.206:5173 — click "Run LangGraph Demo" to see it in action instantly.
 
 Chronos intercepts every step of your LangChain or LangGraph agent run — capturing prompts, tool calls, outputs, token usage, and latency — and visualizes it as an interactive graph. Click any past step, edit the output, and resume execution from that exact point.
 
