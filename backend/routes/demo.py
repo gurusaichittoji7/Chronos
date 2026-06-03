@@ -10,10 +10,15 @@ DEMO_SCRIPT = os.path.abspath(os.path.join(BACKEND_DIR, '..', 'demo_agent', 'run
 
 
 def run_demo_agent(run_type: str):
+    env = {
+        **os.environ,
+        'PYTHONPATH': BACKEND_DIR,
+        'DATABASE_URL': '/app/chronos.db',
+    }
     subprocess.Popen(
         [sys.executable, DEMO_SCRIPT, run_type],
         cwd=BACKEND_DIR,
-        env={**os.environ, 'PYTHONPATH': BACKEND_DIR},
+        env=env,
     )
 
 
