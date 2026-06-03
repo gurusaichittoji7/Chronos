@@ -52,7 +52,7 @@ function buildNodes(steps, darkMode) {
     return {
       id: String(step.id),
       type: 'default',
-      position: { x: 250, y: i * 160 },
+      position: { x: 250, y: i * 220 },
       data: {
         label: (
           <div style={{ textAlign: 'center', width: '100%', overflow: 'visible', position: 'relative' }}>
