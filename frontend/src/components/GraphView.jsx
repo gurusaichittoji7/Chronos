@@ -51,8 +51,32 @@ function buildNodes(steps, darkMode) {
     return {
       id: String(step.id),
       type: 'default',
-      position: { x: 250, y: i * 160 },
-      data: { label: renderNode(icon, label, step, colors, darkMode), step },
+      position: { x: 250, y: i * 180 },
+      data: {
+  label: (
+    <div style={{ textAlign: 'center', width: '100%', overflow: 'visible', position: 'relative' }}>
+      <div style={{ fontSize: '22px', lineHeight: 1 }}>{icon}</div>
+      {step.status === 'success' && (
+        <div style={{ fontSize: '10px', color: '#22c55e', marginTop: '1px' }}>✓</div>
+      )}
+      <div style={{
+        position: 'absolute',
+        top: '100%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        marginTop: '52px',
+        whiteSpace: 'nowrap',
+        fontSize: '12px',
+        fontWeight: '500',
+        color: darkMode ? '#94a3b8' : '#475569',
+        pointerEvents: 'none',
+      }}>
+        {label}
+      </div>
+    </div>
+  ),
+  step,
+},
       style: {
         background: colors.bg,
         border: `2px solid ${colors.border}`,
@@ -64,8 +88,11 @@ function buildNodes(steps, darkMode) {
         justifyContent: 'center',
         cursor: 'pointer',
         boxShadow: darkMode ? `0 0 16px ${colors.border}44` : `0 2px 12px ${colors.border}33`,
-        transition: 'box-shadow 0.2s ease',
       },
+      // Label below the node
+      labelStyle: { display: 'none' },
+      // Store label text for overlay
+      data_label: label,
     }
   })
 }
@@ -159,45 +186,64 @@ export default function GraphView({ runId, onSelectStep, darkMode }) {
   }
 
   return (
-    <div className="flex-1 relative" style={{ height: '100%' }}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onNodeClick={onNodeClick}
-        fitView
-        fitViewOptions={{ padding: 0.3 }}
-      >
-        <Background
-          color={darkMode ? '#1e2d45' : '#e2e8f0'}
-          gap={24}
-          size={1}
-        />
-        <Controls />
-        <MiniMap
-          style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border)',
-            bottom: 60,
-            right: 10,
-          }}
-          nodeColor={(node) => {
-            const type = node.data?.step?.step_type
-            const isError = node.data?.step?.status === 'failed'
-            if (isError) return '#f43f5e'
-            return nodeColors[type]?.[darkMode ? 'dark' : 'light']?.border || '#94a3b8'
-          }}
-        />
-      </ReactFlow>
+  <div className="flex-1 relative" style={{ height: '100%' }}>
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onNodeClick={onNodeClick}
+      fitView
+      fitViewOptions={{ padding: 0.3 }}
+    >
+      <Background
+        color={darkMode ? '#1e2d45' : '#e2e8f0'}
+        gap={24}
+        size={1}
+      />
+      <Controls />
+      <MiniMap
+        style={{
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border)',
+          bottom: 60,
+          right: 10,
+        }}
+        nodeColor={(node) => {
+          const type = node.data?.step?.step_type
+          const isError = node.data?.step?.status === 'failed'
+          if (isError) return '#f43f5e'
+          return nodeColors[type]?.[darkMode ? 'dark' : 'light']?.border || '#94a3b8'
+        }}
+      />
+    </ReactFlow>
 
-      {/* Node labels overlay */}
-      <style>{`
-        .react-flow__node-default .react-flow__handle {
-          background: transparent !important;
-          border: none !important;
-        }
-      `}</style>
-    </div>
-  )
+    {/* Node name labels rendered below each circle */}
+    <style>{`
+      .react-flow__node-default {
+        overflow: visible !important;
+      }
+      .react-flow__node-default::after {
+        display: none;
+      }
+      .react-flow__node .react-flow__handle {
+        background: transparent !important;
+        border: none !important;
+        width: 8px !important;
+        height: 8px !important;
+      }
+      .node-label-below {
+        position: absolute;
+        bottom: -24px;
+        left: 50%;
+        transform: translateX(-50%);
+        white-space: nowrap;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        pointer-events: none;
+      }
+    `}</style>
+  </div>
+)
 }
