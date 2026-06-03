@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react'
 import { getAllRuns, deleteRun } from '../api'
 
-const statusColors = {
-  running: 'bg-yellow-500',
-  success: 'bg-green-500',
-  failed: 'bg-red-500',
-  replayed: 'bg-purple-500',
+const statusDot = {
+  running: '#22c55e',
+  success: '#22c55e',
+  failed: '#f43f5e',
+  replayed: '#a855f7',
 }
 
-const frameworkBadge = {
-  langchain: 'bg-blue-900 text-blue-300',
-  langgraph: 'bg-indigo-900 text-indigo-300',
+const frameworkColors = {
+  langchain: { bg: '#eff6ff', text: '#3b82f6', darkBg: '#0f1e3d', darkText: '#60a5fa' },
+  langgraph: { bg: '#faf5ff', text: '#a855f7', darkBg: '#160d2e', darkText: '#c084fc' },
 }
 
-export default function RunsList({ selectedRunId, onSelectRun }) {
+export default function RunsList({ selectedRunId, onSelectRun, darkMode, onToggleDark }) {
   const [runs, setRuns] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -44,29 +44,52 @@ export default function RunsList({ selectedRunId, onSelectRun }) {
     }
   }
 
+  const fw = (run) => frameworkColors[run.framework] || frameworkColors.langchain
+
   return (
-    <div className="w-72 min-h-screen bg-[#13151f] border-r border-[#2a2d3e] flex flex-col">
+    <div className="w-72 min-h-screen flex flex-col relative z-10 border-r"
+      style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+
       {/* Header */}
-      <div className="p-4 border-b border-[#2a2d3e]">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-xl">🕰️</span>
-          <h1 className="text-lg font-bold text-white tracking-tight">Chronos</h1>
+      <div className="p-4 border-b flex items-center justify-between"
+        style={{ borderColor: 'var(--border)' }}>
+        <div>
+          <div className="flex items-center gap-2 mb-0.5">
+            <span className="text-xl">🕰️</span>
+            <h1 className="text-lg font-bold tracking-tight"
+              style={{ color: 'var(--text-primary)' }}>Chronos</h1>
+          </div>
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            Agent Flight Recorder
+          </p>
         </div>
-        <p className="text-xs text-slate-500">Agent Flight Recorder</p>
+
+        {/* Day/Night Toggle */}
+        <button
+          onClick={onToggleDark}
+          className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
+          style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}
+          title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {darkMode ? '☀️' : '🌙'}
+        </button>
       </div>
 
       {/* Runs */}
       <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2">
-        <p className="text-xs text-slate-500 uppercase tracking-widest mb-1 px-1">
+        <p className="text-xs font-semibold uppercase tracking-widest mb-1 px-1"
+          style={{ color: 'var(--text-muted)' }}>
           Runs
         </p>
 
         {loading && (
-          <p className="text-sm text-slate-500 px-1">Loading runs...</p>
+          <p className="text-sm px-1" style={{ color: 'var(--text-muted)' }}>
+            Loading runs...
+          </p>
         )}
 
         {!loading && runs.length === 0 && (
-          <p className="text-sm text-slate-500 px-1">
+          <p className="text-sm px-1" style={{ color: 'var(--text-muted)' }}>
             No runs yet. Start your demo agent.
           </p>
         )}
@@ -75,38 +98,52 @@ export default function RunsList({ selectedRunId, onSelectRun }) {
           <div
             key={run.id}
             onClick={() => onSelectRun(run.id)}
-            className={`p-3 rounded-lg cursor-pointer border transition-all group
-              ${selectedRunId === run.id
-                ? 'bg-[#1e2130] border-indigo-500'
-                : 'bg-[#1a1d27] border-transparent hover:border-[#3b4058]'
-              }`}
+            className="p-3 rounded-xl cursor-pointer border transition-all group"
+            style={{
+              background: selectedRunId === run.id ? 'var(--accent-soft)' : 'var(--bg-card)',
+              borderColor: selectedRunId === run.id ? 'var(--accent)' : 'var(--border)',
+              boxShadow: selectedRunId === run.id ? 'var(--shadow)' : 'none',
+            }}
           >
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs text-slate-400 font-mono">#{run.id}</span>
+              <span className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>
+                #{run.id}
+              </span>
               <div className="flex items-center gap-2">
-                <span
-                  className={`w-2 h-2 rounded-full ${statusColors[run.status] || 'bg-slate-500'}`}
-                />
+                {run.status === 'running' ? (
+                  <span className="text-xs font-semibold flex items-center gap-1"
+                    style={{ color: '#22c55e' }}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse inline-block" />
+                    live
+                  </span>
+                ) : (
+                  <span className="w-2 h-2 rounded-full inline-block"
+                    style={{ background: statusDot[run.status] || '#94a3b8' }} />
+                )}
                 <button
                   onClick={(e) => handleDelete(e, run.id)}
-                  className="text-slate-600 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="text-xs opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-400"
+                  style={{ color: 'var(--text-muted)' }}
                 >
                   ✕
                 </button>
               </div>
             </div>
 
-            <p className="text-sm text-white font-medium truncate mb-2">
+            <p className="text-sm font-semibold truncate mb-2"
+              style={{ color: 'var(--text-primary)' }}>
               {run.name}
             </p>
 
             <div className="flex items-center justify-between">
-              <span
-                className={`text-xs px-2 py-0.5 rounded-full font-medium ${frameworkBadge[run.framework] || 'bg-slate-800 text-slate-400'}`}
-              >
+              <span className="text-xs px-2 py-0.5 rounded-full font-medium"
+                style={{
+                  background: darkMode ? fw(run).darkBg : fw(run).bg,
+                  color: darkMode ? fw(run).darkText : fw(run).text,
+                }}>
                 {run.framework}
               </span>
-              <span className="text-xs text-slate-500">
+              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
                 {run.total_tokens > 0 ? `${run.total_tokens} tokens` : ''}
               </span>
             </div>
@@ -115,8 +152,8 @@ export default function RunsList({ selectedRunId, onSelectRun }) {
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-[#2a2d3e]">
-        <p className="text-xs text-slate-600 text-center">
+      <div className="p-4 border-t text-center" style={{ borderColor: 'var(--border)' }}>
+        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
           Auto-refreshes every 5s
         </p>
       </div>
