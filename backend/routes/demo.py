@@ -6,7 +6,7 @@ import os
 router = APIRouter(prefix="/demo", tags=["demo"])
 
 BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-DEMO_SCRIPT = os.path.abspath(os.path.join(BACKEND_DIR, '..', 'demo_agent', 'run_demo.py'))
+DEMO_SCRIPT = os.path.join(BACKEND_DIR, 'demo_agent', 'run_demo.py')
 
 
 def run_demo_agent(run_type: str):
