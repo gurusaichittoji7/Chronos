@@ -1,20 +1,19 @@
 from fastapi import APIRouter, BackgroundTasks
-from sqlmodel import Session
-from database import engine
-from models import Run
-from datetime import datetime
 import subprocess
 import sys
 import os
 
 router = APIRouter(prefix="/demo", tags=["demo"])
 
+BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+DEMO_SCRIPT = os.path.abspath(os.path.join(BACKEND_DIR, '..', 'demo_agent', 'run_demo.py'))
+
 
 def run_demo_agent(run_type: str):
-    demo_script = os.path.join(os.path.dirname(__file__), '..', '..', 'demo_agent', 'run_demo.py')
     subprocess.Popen(
-        [sys.executable, demo_script, run_type],
-        cwd=os.path.join(os.path.dirname(__file__), '..'),
+        [sys.executable, DEMO_SCRIPT, run_type],
+        cwd=BACKEND_DIR,
+        env={**os.environ, 'PYTHONPATH': BACKEND_DIR},
     )
 
 
