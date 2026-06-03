@@ -43,7 +43,15 @@ export default function RunsList({ selectedRunId, onSelectRun, darkMode, onToggl
       console.error('Failed to delete run', err)
     }
   }
-
+const handleRunDemo = async (type) => {
+  try {
+    await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/demo/run/${type}`, {
+      method: 'POST',
+    })
+  } catch (err) {
+    console.error('Failed to trigger demo', err)
+  }
+}
   const fw = (run) => frameworkColors[run.framework] || frameworkColors.langchain
 
   return (
@@ -152,11 +160,33 @@ export default function RunsList({ selectedRunId, onSelectRun, darkMode, onToggl
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t text-center" style={{ borderColor: 'var(--border)' }}>
-        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-          Auto-refreshes every 5s
-        </p>
-      </div>
+<div className="p-4 border-t flex flex-col gap-2" style={{ borderColor: 'var(--border)' }}>
+  <button
+    onClick={() => handleRunDemo('langgraph')}
+    className="w-full py-2 rounded-lg text-xs font-semibold transition-all"
+    style={{
+      background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+      color: 'white',
+      boxShadow: '0 4px 12px #6366f144',
+    }}
+  >
+    ▶ Run LangGraph Demo
+  </button>
+  <button
+    onClick={() => handleRunDemo('langchain')}
+    className="w-full py-2 rounded-lg text-xs font-semibold transition-all"
+    style={{
+      background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
+      color: 'white',
+      boxShadow: '0 4px 12px #3b82f644',
+    }}
+  >
+    ▶ Run LangChain Demo
+  </button>
+  <p className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
+    Auto-refreshes every 5s
+  </p>
+</div>
     </div>
   )
 }
