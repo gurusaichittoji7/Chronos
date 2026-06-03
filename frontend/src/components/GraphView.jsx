@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 import {
   ReactFlow,
   Background,
@@ -6,82 +6,102 @@ import {
   MiniMap,
   useNodesState,
   useEdgesState,
-  addEdge,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { getSteps } from '../api'
 
-const stepTypeColors = {
-  llm: { bg: '#1e3a5f', border: '#3b82f6', text: '#93c5fd' },
-  tool: { bg: '#1a3a2a', border: '#22c55e', text: '#86efac' },
-  node: { bg: '#2d1b4e', border: '#a855f7', text: '#d8b4fe' },
+const nodeIcons = {
+  llm: '🧠',
+  tool: '🔧',
+  node: '📋',
 }
 
 const statusIcons = {
   success: '✅',
-  failed: '❌',
+  failed: '⚠️',
   running: '⏳',
   replayed: '🔁',
 }
 
-function buildNodes(steps) {
+const nodeColors = {
+  llm: { light: { bg: '#eff6ff', border: '#3b82f6' }, dark: { bg: '#0f1e3d', border: '#3b82f6' } },
+  tool: { light: { bg: '#f0fdf4', border: '#22c55e' }, dark: { bg: '#0a1f14', border: '#22c55e' } },
+  node: { light: { bg: '#faf5ff', border: '#a855f7' }, dark: { bg: '#160d2e', border: '#a855f7' } },
+  error: { light: { bg: '#fff1f2', border: '#f43f5e' }, dark: { bg: '#1f0a0e', border: '#f43f5e' } },
+}
+
+function getToolIcon(name) {
+  if (!name) return '🔧'
+  const n = name.toLowerCase()
+  if (n.includes('search')) return '🔍'
+  if (n.includes('calc')) return '🧮'
+  if (n.includes('summar')) return '📝'
+  if (n.includes('llm') || n.includes('ollama') || n.includes('openai')) return '🧠'
+  return '🔧'
+}
+
+function buildNodes(steps, darkMode) {
   return steps.map((step, i) => {
-    const colors = stepTypeColors[step.step_type] || stepTypeColors.node
+    const isError = step.status === 'failed'
+    const colorKey = isError ? 'error' : step.step_type
+    const colors = (nodeColors[colorKey] || nodeColors.node)[darkMode ? 'dark' : 'light']
+    const icon = isError ? '⚠️' : (step.step_type === 'llm' ? '🧠' : getToolIcon(step.name))
+    const label = isError ? 'Exception' : step.name
+
     return {
       id: String(step.id),
       type: 'default',
-      position: { x: 250, y: i * 140 },
-      data: {
-        label: (
-          <div className="text-left w-full">
-            <div className="flex items-center justify-between mb-1">
-              <span
-                className="text-xs font-bold uppercase tracking-wider"
-                style={{ color: colors.text }}
-              >
-                {step.step_type}
-              </span>
-              <span className="text-xs">
-                {statusIcons[step.status] || '❓'}
-              </span>
-            </div>
-            <div className="text-sm font-semibold text-white truncate mb-1">
-              {step.name}
-            </div>
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              {step.latency_ms > 0 && <span>⚡ {step.latency_ms}ms</span>}
-              {step.token_usage > 0 && <span>🪙 {step.token_usage}</span>}
-            </div>
-          </div>
-        ),
-        step,
-      },
+      position: { x: 250, y: i * 160 },
+      data: { label: renderNode(icon, label, step, colors, darkMode), step },
       style: {
         background: colors.bg,
-        border: `1.5px solid ${colors.border}`,
-        borderRadius: '10px',
-        padding: '10px 14px',
-        width: 220,
+        border: `2px solid ${colors.border}`,
+        borderRadius: '50%',
+        width: 90,
+        height: 90,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         cursor: 'pointer',
+        boxShadow: darkMode ? `0 0 16px ${colors.border}44` : `0 2px 12px ${colors.border}33`,
+        transition: 'box-shadow 0.2s ease',
       },
     }
   })
 }
 
-function buildEdges(steps) {
+function renderNode(icon, label, step, colors, darkMode) {
+  return (
+    <div style={{ textAlign: 'center', width: '100%' }}>
+      <div style={{ fontSize: '24px', lineHeight: 1 }}>{icon}</div>
+      {step.status === 'success' && (
+        <div style={{ fontSize: '10px', color: '#22c55e', marginTop: '2px' }}>✓</div>
+      )}
+    </div>
+  )
+}
+
+function buildEdges(steps, darkMode) {
   return steps.slice(0, -1).map((step, i) => ({
     id: `e${step.id}-${steps[i + 1].id}`,
     source: String(step.id),
     target: String(steps[i + 1].id),
     animated: steps[i + 1].status === 'running',
     style: {
-      stroke: steps[i + 1].status === 'replayed' ? '#a855f7' : '#3b4058',
+      stroke: steps[i + 1].status === 'replayed'
+        ? '#a855f7'
+        : darkMode ? '#3b82f6' : '#94a3b8',
       strokeWidth: 2,
     },
   }))
 }
 
-export default function GraphView({ runId, onSelectStep }) {
+// Custom node label rendered below the circle
+function NodeWithLabel({ nodes, steps, darkMode }) {
+  return null
+}
+
+export default function GraphView({ runId, onSelectStep, darkMode }) {
   const [nodes, setNodes, onNodesChange] = useNodesState([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
   const [loading, setLoading] = useState(true)
@@ -94,8 +114,8 @@ export default function GraphView({ runId, onSelectStep }) {
       try {
         const res = await getSteps(runId)
         const steps = res.data
-        setNodes(buildNodes(steps))
-        setEdges(buildEdges(steps))
+        setNodes(buildNodes(steps, darkMode))
+        setEdges(buildEdges(steps, darkMode))
       } catch (err) {
         console.error('Failed to fetch steps', err)
       } finally {
@@ -106,7 +126,7 @@ export default function GraphView({ runId, onSelectStep }) {
     fetchSteps()
     const interval = setInterval(fetchSteps, 2000)
     return () => clearInterval(interval)
-  }, [runId])
+  }, [runId, darkMode])
 
   const onNodeClick = useCallback((event, node) => {
     onSelectStep(node.data.step)
@@ -114,11 +134,14 @@ export default function GraphView({ runId, onSelectStep }) {
 
   if (!runId) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-[#0f1117]">
+      <div className="flex-1 flex items-center justify-center"
+        style={{ background: 'var(--bg-primary)' }}>
         <div className="text-center">
-          <p className="text-4xl mb-4">🕰️</p>
-          <p className="text-slate-400 text-lg font-medium">Select a run to visualize</p>
-          <p className="text-slate-600 text-sm mt-1">
+          <p className="text-5xl mb-4">🕰️</p>
+          <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>
+            Select a run to visualize
+          </p>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
             or start your demo agent to create one
           </p>
         </div>
@@ -128,14 +151,15 @@ export default function GraphView({ runId, onSelectStep }) {
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-[#0f1117]">
-        <p className="text-slate-400">Loading graph...</p>
+      <div className="flex-1 flex items-center justify-center"
+        style={{ background: 'var(--bg-primary)' }}>
+        <p style={{ color: 'var(--text-muted)' }}>Loading graph...</p>
       </div>
     )
   }
 
   return (
-    <div className="flex-1 bg-[#0f1117]" style={{ height: '100vh' }}>
+    <div className="flex-1 relative" style={{ height: '100%' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -145,27 +169,35 @@ export default function GraphView({ runId, onSelectStep }) {
         fitView
         fitViewOptions={{ padding: 0.3 }}
       >
-        <Background color="#2a2d3e" gap={20} />
-        <Controls
+        <Background
+          color={darkMode ? '#1e2d45' : '#e2e8f0'}
+          gap={24}
+          size={1}
+        />
+        <Controls />
+        <MiniMap
           style={{
-            background: '#1a1d27',
-            border: '1px solid #2a2d3e',
-            borderRadius: '8px',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border)',
+            bottom: 60,
+            right: 10,
+          }}
+          nodeColor={(node) => {
+            const type = node.data?.step?.step_type
+            const isError = node.data?.step?.status === 'failed'
+            if (isError) return '#f43f5e'
+            return nodeColors[type]?.[darkMode ? 'dark' : 'light']?.border || '#94a3b8'
           }}
         />
-        <MiniMap
-  style={{
-    background: '#13151f',
-    border: '1px solid #2a2d3e',
-    bottom: 60,
-    right: 10,
-  }}
-  nodeColor={(node) => {
-    const type = node.data?.step?.step_type
-    return stepTypeColors[type]?.border || '#3b4058'
-  }}
-/>
       </ReactFlow>
+
+      {/* Node labels overlay */}
+      <style>{`
+        .react-flow__node-default .react-flow__handle {
+          background: transparent !important;
+          border: none !important;
+        }
+      `}</style>
     </div>
   )
 }
