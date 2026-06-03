@@ -52,49 +52,46 @@ function buildNodes(steps, darkMode) {
     return {
       id: String(step.id),
       type: 'default',
-      position: { x: 250, y: i * 260 },
+      position: { x: 250, y: i * 160 },
       data: {
         label: (
-          <div style={{ textAlign: 'center', width: '100%', overflow: 'visible', position: 'relative' }}>
-            <div style={{ fontSize: '26px', lineHeight: 1 }}>{icon}</div>
-            <div style={{
-              position: 'absolute',
-              top: '100%',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              marginTop: '56px',
-              whiteSpace: 'nowrap',
-              textAlign: 'center',
-              pointerEvents: 'none',
-            }}>
-              <div style={{
-                fontSize: '11px',
-                fontWeight: '600',
-                color: colors.border,
-                letterSpacing: '0.05em',
-              }}>{typeLine}</div>
-              <div style={{
-                fontSize: '11px',
-                fontWeight: '400',
-                color: darkMode ? '#94a3b8' : '#475569',
-              }}>({nameLine})</div>
-            </div>
-          </div>
+  <div style={{ textAlign: 'center', width: '100%' }}>
+    <div style={{
+      width: 80,
+      height: 80,
+      borderRadius: '50%',
+      background: colors.bg,
+      border: `2px solid ${colors.border}`,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      margin: '0 auto',
+      boxShadow: darkMode ? `0 0 16px ${colors.border}44` : `0 2px 12px ${colors.border}33`,
+    }}>
+      <div style={{ fontSize: '26px' }}>{icon}</div>
+    </div>
+    <div style={{ marginTop: '8px' }}>
+      <div style={{ fontSize: '11px', fontWeight: '600', color: colors.border, letterSpacing: '0.05em' }}>
+        {typeLine}
+      </div>
+      <div style={{ fontSize: '11px', color: darkMode ? '#94a3b8' : '#475569' }}>
+        ({nameLine})
+      </div>
+    </div>
+  </div>
         ),
         step,
       },
       style: {
-        background: colors.bg,
-        border: `2px solid ${colors.border}`,
-        borderRadius: '50%',
-        width: 80,
-        height: 80,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: 'pointer',
-        boxShadow: darkMode ? `0 0 16px ${colors.border}44` : `0 2px 12px ${colors.border}33`,
-      },
+  background: 'transparent',
+  border: 'none',
+  width: 100,
+  height: 130,
+  display: 'flex',
+  alignItems: 'flex-start',
+  justifyContent: 'center',
+  cursor: 'pointer',
+},
     }
   })
 }
