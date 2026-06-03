@@ -54,13 +54,7 @@ Backend API: http://localhost:8000/docs
 
 ### Run the demo agent
 
-```bash
-# LangGraph demo
-docker exec -it chronos_backend_1 bash -c "cd /app && python demo_agent/run_demo.py langgraph"
-
-# LangChain demo
-docker exec -it chronos_backend_1 bash -c "cd /app && python demo_agent/run_demo.py langchain"
-```
+Click ***▶ Run LangGraph Demo*** or ***▶ Run LangChain Demo*** in the sidebar — no terminal needed. A new run will appear automatically and the graph will build in real time.
 
 ## How It Works
 
