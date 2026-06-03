@@ -72,7 +72,7 @@ function buildNodes(steps, darkMode) {
     </div>
     <div style={{ marginTop: '8px' }}>
       <div style={{ fontSize: '11px', color: darkMode ? '#94a3b8' : '#475569' }}>
-        ({nameLine})
+        {nameLine}
       </div>
     </div>
   </div>
@@ -134,17 +134,23 @@ export default function GraphView({ runId, onSelectStep, darkMode }) {
     setLoading(true)
 
     const fetchSteps = async () => {
-      try {
-        const res = await getSteps(runId)
-        const steps = res.data
-        setNodes(buildNodes(steps, darkMode))
-        setEdges(buildEdges(steps, darkMode))
-      } catch (err) {
-        console.error('Failed to fetch steps', err)
-      } finally {
-        setLoading(false)
-      }
-    }
+  try {
+    const res = await getSteps(runId)
+    const steps = res.data
+    setNodes((prevNodes) => {
+      const newNodes = buildNodes(steps, darkMode)
+      return newNodes.map((n) => {
+        const existing = prevNodes.find((p) => p.id === n.id)
+        return existing ? { ...n, position: existing.position } : n
+      })
+    })
+    setEdges(buildEdges(steps, darkMode))
+  } catch (err) {
+    console.error('Failed to fetch steps', err)
+  } finally {
+    setLoading(false)
+  }
+}
 
     fetchSteps()
     const interval = setInterval(fetchSteps, 2000)
