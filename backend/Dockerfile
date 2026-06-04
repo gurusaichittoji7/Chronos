@@ -6,6 +6,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+COPY ../demo_agent /app/demo_agent
 
 EXPOSE 8000
 
